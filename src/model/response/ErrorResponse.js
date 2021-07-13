@@ -1,6 +1,6 @@
 class ErrorResponse {
-  constructor(statusCode, message) {
-    this.statusCode = statusCode;
+  constructor(StatusCode, message) {
+    this.StatusCode = StatusCode;
     this.message = message;
   }
 }

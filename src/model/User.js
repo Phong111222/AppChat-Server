@@ -16,9 +16,15 @@ const UserSchema = new mongoose.Schema(
       ref: 'messages',
       default: [],
     },
+    gender: {
+      required: true,
+      type: String,
+      enum: ['male', 'female'],
+    },
     email: {
       require: true,
       type: String,
+      unique: true,
       validate: {
         validator: function (email) {
           return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(

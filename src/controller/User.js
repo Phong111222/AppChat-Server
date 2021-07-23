@@ -4,7 +4,10 @@ import User from '../model/User';
 import bcrypt from 'bcryptjs';
 import ErrorResponse from '../model/response/ErrorResponse';
 export const GetUserList = AsyncMiddleware(async (_, res, next) => {
-  const users = await User.find();
+  const users = await User.find()
+    .populate('rooms', '_id users roomType messages')
+    .select('-__v -createdAt -updatedAt');
+
   return res.status(200).json(new SuccessResponse(200, { users }));
 });
 

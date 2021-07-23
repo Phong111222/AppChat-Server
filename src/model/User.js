@@ -6,15 +6,22 @@ const UserSchema = new mongoose.Schema(
       required: true,
       type: String,
     },
+    nickname: {
+      type: String,
+      default: '',
+    },
     password: {
       require: true,
       type: String,
       minlength: [8, 'password must have at least 8 characters'],
     },
-    messages: {
+    rooms: {
       type: [Schema.Types.ObjectId],
-      ref: 'messages',
-      default: [],
+      ref: 'rooms',
+    },
+    friends: {
+      type: [Schema.Types.ObjectId],
+      ref: 'users',
     },
     gender: {
       required: true,

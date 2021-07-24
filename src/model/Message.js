@@ -1,5 +1,21 @@
 import { Schema, model } from 'mongoose';
-
+import { UserSchema } from './User';
+const SenderSchema = new Schema(
+  {
+    name: {
+      type: String,
+    },
+    _id: {
+      type: String,
+    },
+    nickname: {
+      type: String,
+    },
+  },
+  {
+    timepstamps: true,
+  }
+);
 const MessageSchema = new Schema(
   {
     text: {
@@ -8,11 +24,14 @@ const MessageSchema = new Schema(
     room: {
       type: Schema.Types.ObjectId,
       ref: 'rooms',
+      required: true,
     },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: 'users',
+    sender: {
+      type: SenderSchema,
+
+      required: true,
     },
+
     file: {
       type: String,
     },
@@ -25,4 +44,4 @@ const MessageSchema = new Schema(
   }
 );
 
-export default mongoose.model('messages', MessageSchema);
+export default model('messages', MessageSchema);

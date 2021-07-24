@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { CreateRoom } from '../controller/Rooms';
+import { CreateSingleRoom, GetSingleRoom } from '../controller/Rooms';
 // import authorizeMiddleware from '../middleware/authorizeMiddleware';
 
 const router = Router();
 
-router.post('/', CreateRoom);
+router.post('/', CreateSingleRoom).get('/singleRooms', GetSingleRoom);
 
 export default router;

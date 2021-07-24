@@ -8,6 +8,7 @@ import baseAuth from './middleware/baseAuth';
 import AuthRouter from './routes/auth';
 import UserRouter from './routes/user';
 import RoomRouter from './routes/room';
+import MessageRouter from './routes/message';
 import { Server } from 'socket.io';
 import authorizeMiddleware from './middleware/authorizeMiddleware';
 
@@ -23,6 +24,7 @@ app.use(cors());
 app.use(`${PREFIX}/auth`, baseAuth, AuthRouter);
 app.use(`${PREFIX}/user`, UserRouter);
 app.use(`${PREFIX}/room`, authorizeMiddleware, RoomRouter);
+app.use(`${PREFIX}/message`, authorizeMiddleware, MessageRouter);
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;

@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { GetUserList, UpdatePassword } from '../controller/User';
+import {
+  GetUserInfo,
+  GetUserList,
+  UpdatePassword,
+  GetRandomFriends,
+} from '../controller/User';
 import authorizeMiddleware from '../middleware/authorizeMiddleware';
 import baseAuth from '../middleware/baseAuth';
 
@@ -7,6 +12,7 @@ const route = Router();
 
 route
   .get('/', baseAuth, GetUserList)
-  .patch('/:userID', authorizeMiddleware, UpdatePassword);
-
+  .patch('/:userID', authorizeMiddleware, UpdatePassword)
+  .get('/:userId', authorizeMiddleware, GetUserInfo);
+route.get('/friends/random', authorizeMiddleware, GetRandomFriends);
 export default route;

@@ -42,3 +42,20 @@ export const CreateSingleMessage = AsyncMiddleware(async (req, res, next) => {
   await room.save();
   res.status(200).json(new SuccessResponse(200, savedMessage));
 });
+
+export const GetSingleRoomMessages = AsyncMiddleware(async (req, res, next) => {
+  const { roomId } = req.params;
+
+  const room = await Room.findById(roomId).populate('messages');
+
+  if (!room) {
+    return next(new ErrorResponse(400, 'Room does not exist'));
+  }
+
+  if (!room.users.includes(req.user._id.toString())) {
+    return next(
+      new ErrorResponse(403, "You don't have permission in this room")
+    );
+  }
+  res.status(200).json(new SuccessResponse(200, { messages: room.messages }));
+});

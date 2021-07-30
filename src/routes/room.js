@@ -1,9 +1,15 @@
 import { Router } from 'express';
-import { CreateSingleRoom, GetSingleRoom } from '../controller/Rooms';
-// import authorizeMiddleware from '../middleware/authorizeMiddleware';
+import {
+  CreateSingleRoom,
+  GetAllSingleRooms,
+  GetAllSingleRoomsByUser,
+} from '../controller/Rooms';
 
 const router = Router();
 
-router.post('/', CreateSingleRoom).get('/singleRooms', GetSingleRoom);
+router
+  .post('/', CreateSingleRoom)
+  .get('/singleRooms', GetAllSingleRooms)
+  .get('/singleRooms/:userId', GetAllSingleRoomsByUser);
 
 export default router;

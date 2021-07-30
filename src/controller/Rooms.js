@@ -44,22 +44,40 @@ export const CreateSingleRoom = AsyncMiddleware(async (req, res, next) => {
   res.status(200).json(savedRoom);
 });
 
-export const GetSingleRoom = AsyncMiddleware(async (_, res, __) => {
-  const rooms = await Room.find({ roomType: { $eq: 'Single' } }).populate(
-    'messages users',
-    '-password -createdAt -updatedAt'
-  );
+export const GetAllSingleRooms = AsyncMiddleware(async (_, res, __) => {
+  const rooms = await Room.find({ roomType: { $eq: 'Single' } }).populate({
+    path: 'users messages',
+    populate: {
+      path: 'rooms',
+    },
+  });
 
-  res.status(200).json(new SuccessResponse(200, rooms));
+  res.status(200).json(new SuccessResponse(200, { rooms }));
 });
+
+export const GetAllSingleRoomsByUser = AsyncMiddleware(
+  async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate({
+      path: 'rooms',
+      populate: {
+        path: 'users messages',
+        select: '-password',
+      },
+    });
+    if (!user) {
+      next(new ErrorResponse(400, 'User is not found'));
+    }
+    const SingleRoomsOfUser = user.rooms;
+    res
+      .status(200)
+      .json(new SuccessResponse(200, { rooms: SingleRoomsOfUser }));
+  }
+);
 
 export const GetRoomInfo = AsyncMiddleware(async (req, res, next) => {
   const { roomId } = req.params;
   const room = Room.findById(roomId).select('-__v -createdAd -updatedAt');
   if (!room) return next(new ErrorResponse(400, 'Room does not exist'));
   res.status(200).json(new SuccessResponse(200, room));
-});
-
-export const DeleteRoom = AsyncMiddleware(async (req, res, next) => {
-  const { roomId } = req.params;
 });

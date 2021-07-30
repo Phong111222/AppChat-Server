@@ -16,7 +16,11 @@ const PREFIX = '/api/v1';
 const app = express();
 MongoConnect();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+  },
+});
 
 app.use(express.json());
 app.use(cors());
@@ -33,7 +37,14 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 io.on('connection', (socket) => {
-  console.log('New user has joined the room');
+  socket.on('send-message', (message) => {
+    console.log(message);
+    io.emit('recieve-message', message);
+  });
+  socket.on('join-room', (roomId, name) => {
+    console.log(`${name} connected to room ${roomId}`);
+    socket.join(roomId);
+  });
 });
 
 server.listen(PORT, () => {

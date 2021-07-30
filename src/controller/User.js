@@ -27,21 +27,28 @@ export const UpdatePassword = AsyncMiddleware(async (req, res, next) => {
 
 export const GetUserInfo = AsyncMiddleware(async (req, res, next) => {
   const { userId } = req.params;
-  const user = await User.findById(userId).select('-password');
+  const user = await User.findById(userId)
+    .populate('rooms friends', '-password')
+    .select('-password');
   if (!user) {
     return next(new ErrorResponse(400, 'User is not found'));
   }
-  res.status(200).json(200, user);
+  res.status(200).json(new SuccessResponse(200, user));
 });
 
-export const GetRandomFriends = AsyncMiddleware(async (req, res, next) => {
-  const users = await User.find({ _id: { $ne: req.user._id.toString() } });
-  let friendsSuggesst = users.filter(
-    (ele) => !req.user.friends.includes(ele._id)
-  );
-  const randomNum = getRandomArbitrary(0, friendsSuggesst.length) + 6;
-  if (friendsSuggesst.length > randomNum) {
-    friendsSuggesst.slice(randomNum, randomNum);
+export const GetRandomSuggestFriends = AsyncMiddleware(
+  async (req, res, next) => {
+    const users = await User.find({
+      _id: { $ne: req.user._id.toString() },
+    }).select('-password');
+    let friendsSuggesst = users.filter(
+      (ele) => !req.user.friends.includes(ele._id)
+    );
+
+    const randomNum = getRandomArbitrary(0, friendsSuggesst.length) + 8;
+    if (friendsSuggesst.length > randomNum) {
+      friendsSuggesst.slice(randomNum - 8, randomNum);
+    }
+    res.status(200).json(new SuccessResponse(200, friendsSuggesst));
   }
-  res.status(200).json(new SuccessResponse(200, friendsSuggesst));
-});
+);

@@ -37,13 +37,19 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 io.on('connection', (socket) => {
-  socket.on('send-message', (message) => {
-    console.log(message);
-    io.emit('recieve-message', message);
+  socket.on('send-message', (message, roomId) => {
+    socket.to(roomId).emit('recieve-message', message);
+  });
+
+  socket.on('send-online', (userId) => {
+    socket.broadcast.emit('online', userId);
   });
   socket.on('join-room', (roomId, name) => {
     console.log(`${name} connected to room ${roomId}`);
     socket.join(roomId);
+  });
+  socket.on('disconnect', (userId) => {
+    console.log(`user ${userId} Phong disconnect`);
   });
 });
 

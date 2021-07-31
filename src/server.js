@@ -37,6 +37,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 io.on('connection', (socket) => {
+  const id = socket.id;
   socket.on('send-message', (message, roomId) => {
     socket.to(roomId).emit('recieve-message', message);
   });
@@ -48,8 +49,10 @@ io.on('connection', (socket) => {
     console.log(`${name} connected to room ${roomId}`);
     socket.join(roomId);
   });
-  socket.on('disconnect', (userId) => {
-    console.log(`user ${userId} Phong disconnect`);
+  socket.on('disconnect', () => {
+    socket.on('send-offline', (userId) => {
+      console.log(userId);
+    });
   });
 });
 

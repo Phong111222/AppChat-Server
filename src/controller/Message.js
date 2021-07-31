@@ -3,6 +3,7 @@ import Message from '../model/Message';
 import ErrorResponse from '../model/response/ErrorResponse';
 import SuccessResponse from '../model/response/SuccessResponse';
 import Room from '../model/Room';
+import { EncryptMessage } from '../utils/encrypt';
 
 export const CreateSingleMessage = AsyncMiddleware(async (req, res, next) => {
   const { text, file, image } = req.body;
@@ -28,7 +29,11 @@ export const CreateSingleMessage = AsyncMiddleware(async (req, res, next) => {
     _id: req.user._id,
   };
   if (text) {
-    newMessage = new Message({ sender: user, room: roomId, text });
+    newMessage = new Message({
+      sender: user,
+      room: roomId,
+      text: EncryptMessage(text, `${roomId} ${process.env.secretEncrypt}`),
+    });
   }
   if (file) {
     newMessage = new Message({ sender: user, room: roomId, file });

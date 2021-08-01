@@ -2,7 +2,7 @@ import ErrorResponse from '../model/response/ErrorResponse';
 
 export default (error, _, res, next) => {
   let errors = { ...error };
-
+  console.log(error);
   // mongo validator
   if (error.name === 'ValidationError') {
     errors = new ErrorResponse(400, error.errors);

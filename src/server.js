@@ -2,19 +2,23 @@ import express from 'express';
 import cors from 'cors';
 import http from 'http';
 import 'colors';
-import MongoConnect from './database/mongodb';
+import { ConnectMongo } from './database/mongodb';
 import errorMiddleware from './middleware/errorMiddleware';
 import baseAuth from './middleware/baseAuth';
 import AuthRouter from './routes/auth';
 import UserRouter from './routes/user';
 import RoomRouter from './routes/room';
 import MessageRouter from './routes/message';
+import UploadRouter from './routes/upload';
 import { Server } from 'socket.io';
 import authorizeMiddleware from './middleware/authorizeMiddleware';
 
+ConnectMongo.getConnect();
+// MongoConnect();
+
 const PREFIX = '/api/v1';
 const app = express();
-MongoConnect();
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -29,6 +33,7 @@ app.use(`${PREFIX}/auth`, baseAuth, AuthRouter);
 app.use(`${PREFIX}/user`, UserRouter);
 app.use(`${PREFIX}/room`, authorizeMiddleware, RoomRouter);
 app.use(`${PREFIX}/message`, authorizeMiddleware, MessageRouter);
+app.use(`${PREFIX}/upload`, authorizeMiddleware, UploadRouter);
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;

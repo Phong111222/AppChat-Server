@@ -42,9 +42,8 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 io.on('connection', (socket) => {
-  const id = socket.id;
   socket.on('send-message', (message, roomId) => {
-    socket.to(roomId).emit('recieve-message', message);
+    socket.broadcast.emit('recieve-message', message);
   });
 
   socket.on('send-online', (userId) => {

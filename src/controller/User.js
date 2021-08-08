@@ -16,13 +16,23 @@ export const GetUserList = AsyncMiddleware(async (_, res, next) => {
 export const UpdatePassword = AsyncMiddleware(async (req, res, next) => {
   const { user } = req;
   const { password, new_password } = req.body;
+  const { userID } = req.params;
+  const checkUser = await User.findById(userID);
+  if (!checkUser) {
+    return next(new ErrorResponse(400, 'User is not found'));
+  }
+  if (checkUser._id.toString() !== user._id.toString()) {
+    return next(
+      new ErrorResponse(403, 'You do not have permission in this route')
+    );
+  }
   const comparePassword = await bcrypt.compare(password, user.password);
   if (!comparePassword) {
     return next(new ErrorResponse(400, 'Wrong password'));
   }
   user.password = new_password;
   const rs = await user.save();
-  res.status(201).json(201, { rs });
+  res.status(201).json(new SuccessResponse(201, { rs }));
 });
 
 export const GetUserInfo = AsyncMiddleware(async (req, res, next) => {

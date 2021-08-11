@@ -81,3 +81,28 @@ export const GetRoomInfo = AsyncMiddleware(async (req, res, next) => {
   if (!room) return next(new ErrorResponse(400, 'Room does not exist'));
   res.status(200).json(new SuccessResponse(200, room));
 });
+export const CreateGroupRoom = AsyncMiddleware(async (req, res, next) => {
+  const { userList, roomType } = req.body;
+  const users = await User.find().select('_id');
+  const usersListId = [];
+  users.forEach((user) => usersListId.push(user._id.toString()));
+  let check = [];
+
+  userList.forEach((user) => {
+    if (!usersListId.includes(user)) {
+      check.push(user);
+    }
+  });
+  if (check.length > 0) {
+    return next(new ErrorResponse(400, `${check.join(', ')} is not found`));
+  }
+  const newRoom = new Room({ users: userList, roomType });
+  const savedRoom = await newRoom.save();
+  // res.status(200).json(new SuccessResponse(200, {}));
+  for (let u of userList) {
+    const user = await User.findById(u);
+    user.rooms.push(savedRoom._id);
+    await user.save();
+  }
+  res.status(200).json(new SuccessResponse(200, savedRoom));
+});

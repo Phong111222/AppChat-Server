@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
+
 export const UserSchema = new mongoose.Schema(
   {
     name: {
@@ -20,6 +21,10 @@ export const UserSchema = new mongoose.Schema(
       ref: 'rooms',
     },
     friends: {
+      type: [Schema.Types.ObjectId],
+      ref: 'users',
+    },
+    friendRequests: {
       type: [Schema.Types.ObjectId],
       ref: 'users',
     },

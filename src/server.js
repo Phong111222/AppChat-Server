@@ -9,6 +9,7 @@ import AuthRouter from './routes/auth';
 import UserRouter from './routes/user';
 import RoomRouter from './routes/room';
 import MessageRouter from './routes/message';
+import FriendRouter from './routes/friend';
 import UploadRouter from './routes/upload';
 import { Server } from 'socket.io';
 import authorizeMiddleware from './middleware/authorizeMiddleware';
@@ -33,6 +34,7 @@ app.use(`${PREFIX}/auth`, baseAuth, AuthRouter);
 app.use(`${PREFIX}/user`, UserRouter);
 app.use(`${PREFIX}/room`, authorizeMiddleware, RoomRouter);
 app.use(`${PREFIX}/message`, authorizeMiddleware, MessageRouter);
+app.use(`${PREFIX}/friend`, authorizeMiddleware, FriendRouter);
 app.use(`${PREFIX}/upload`, authorizeMiddleware, UploadRouter);
 app.use(errorMiddleware);
 

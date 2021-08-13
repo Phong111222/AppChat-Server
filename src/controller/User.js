@@ -48,17 +48,31 @@ export const GetUserInfo = AsyncMiddleware(async (req, res, next) => {
 
 export const GetRandomSuggestFriends = AsyncMiddleware(
   async (req, res, next) => {
+    const user = req.user;
     const users = await User.find({
       _id: { $ne: req.user._id.toString() },
     }).select('-password');
-    let friendsSuggesst = users.filter(
+    let friendsSuggest = users.filter(
       (ele) => !req.user.friends.includes(ele._id)
     );
 
-    const randomNum = getRandomArbitrary(0, friendsSuggesst.length) + 8;
-    if (friendsSuggesst.length > randomNum) {
-      friendsSuggesst.slice(randomNum - 8, randomNum);
+    const randomNum = getRandomArbitrary(0, friendsSuggest.length) + 8;
+    if (friendsSuggest.length > randomNum) {
+      friendsSuggest.slice(randomNum - 8, randomNum);
     }
-    res.status(200).json(new SuccessResponse(200, friendsSuggesst));
+    friendsSuggest = friendsSuggest.filter(
+      (u) => !user.friendRequests.includes(u._id.toString())
+    );
+
+    res.status(200).json(new SuccessResponse(200, { friendsSuggest }));
   }
 );
+
+export const GetListFriends = AsyncMiddleware(async (req, res, next) => {
+  const user = await User.findById(req.user._id.toString()).populate({
+    path: 'friends',
+    select: '-password',
+  });
+
+  res.status(200).json(new SuccessResponse(200, { friends: user.friends }));
+});

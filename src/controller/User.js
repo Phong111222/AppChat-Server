@@ -4,7 +4,7 @@ import User from '../model/User';
 import bcrypt from 'bcryptjs';
 import ErrorResponse from '../model/response/ErrorResponse';
 import getRandomArbitrary from '../utils/getRandomNumber';
-
+import { Shuffle } from '../utils/func';
 export const GetUserList = AsyncMiddleware(async (_, res, next) => {
   const users = await User.find()
     .populate('rooms', '_id users roomType messages')
@@ -55,16 +55,21 @@ export const GetRandomSuggestFriends = AsyncMiddleware(
     let friendsSuggest = users.filter(
       (ele) => !req.user.friends.includes(ele._id)
     );
+    // Shuffle(friendsSuggest);
 
-    const randomNum = getRandomArbitrary(0, friendsSuggest.length) + 8;
-    if (friendsSuggest.length > randomNum) {
-      friendsSuggest.slice(randomNum - 8, randomNum);
-    }
+    // const randomNum = getRandomArbitrary(0, friendsSuggest.length);
+    // if (friendsSuggest.length > randomNum) {
+    //   friendsSuggest.slice(randomNum - 8, randomNum);
+    // }
     friendsSuggest = friendsSuggest.filter(
       (u) => !user.friendRequests.includes(u._id.toString())
     );
 
-    res.status(200).json(new SuccessResponse(200, { friendsSuggest }));
+    res.status(200).json(
+      new SuccessResponse(200, {
+        friendsSuggest: Shuffle(friendsSuggest).slice(0, 8),
+      })
+    );
   }
 );
 
@@ -75,4 +80,11 @@ export const GetListFriends = AsyncMiddleware(async (req, res, next) => {
   });
 
   res.status(200).json(new SuccessResponse(200, { friends: user.friends }));
+});
+
+export const GetListFriendRequests = AsyncMiddleware(async (req, res, next) => {
+  const user = req.user;
+  res
+    .status(200)
+    .json(new SuccessResponse(200, { friendRequests: user.friendRequests }));
 });

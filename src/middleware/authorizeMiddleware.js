@@ -16,7 +16,10 @@ export default async (req, _, next) => {
   });
   const { _id } = jwt.decode(token, process.env.JWT_TOKEN);
   // console.log(jwt.decode(token, process.env.JWT_TOKEN));
-  const check_user = await User.findOne({ _id });
+  const check_user = await User.findOne({ _id }).populate({
+    path: 'friendRequests',
+    select: '-password -friendRequests',
+  });
   if (!check_user) {
     return next(new ErrorResponse(400, 'User does not exist'));
   }

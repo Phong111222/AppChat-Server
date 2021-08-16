@@ -88,3 +88,12 @@ export const GetListFriendRequests = AsyncMiddleware(async (req, res, next) => {
     .status(200)
     .json(new SuccessResponse(200, { friendRequests: user.friendRequests }));
 });
+
+export const FindUser = AsyncMiddleware(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email }).select('-password');
+  if (!user) {
+    return next(new ErrorResponse(400, 'User is not found'));
+  }
+  res.status(200).json(new SuccessResponse(200, user));
+});

@@ -6,6 +6,7 @@ export default async (req, _, next) => {
   const token = req.headers.authorization
     ? req.headers.authorization.split(' ')[1]
     : null;
+
   if (!token) {
     return next(new ErrorResponse(401, 'JWT is required'));
   }

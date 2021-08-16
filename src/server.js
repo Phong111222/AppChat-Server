@@ -40,9 +40,6 @@ app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
 io.on('connection', (socket) => {
   socket.on('send-message', (message, roomId) => {
     socket.broadcast.emit('recieve-message', message);
@@ -52,13 +49,24 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('online', userId);
   });
   socket.on('join-room', (roomId, name) => {
-    console.log(`${name} connected to room ${roomId}`);
     socket.join(roomId);
   });
-  socket.on('disconnect', () => {
-    socket.on('send-offline', (userId) => {
-      console.log(userId);
-    });
+
+  // friend request
+  socket.on('send-friend-request', (requestData) => {
+    socket.broadcast.emit('recieve-friend-request', requestData);
+  });
+
+  socket.on('send-accept-request', (AcceptData) => {
+    socket.broadcast.emit('recieve-accept', AcceptData);
+  });
+
+  socket.on('send-offline', (user) => {
+    socket.broadcast.emit('recieve-offline', user);
+  });
+
+  socket.on('disconnect', async () => {
+    console.log('disconnected');
   });
 });
 

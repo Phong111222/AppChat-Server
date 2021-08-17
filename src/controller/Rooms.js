@@ -41,7 +41,7 @@ export const CreateSingleRoom = AsyncMiddleware(async (req, res, next) => {
   user2.rooms.push(savedRoom._id);
   await user1.save();
   await user2.save();
-  res.status(200).json(savedRoom);
+  res.status(200).json(new SuccessResponse(200, { newRoom: savedRoom }));
 });
 
 export const GetAllSingleRooms = AsyncMiddleware(async (_, res, __) => {

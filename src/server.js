@@ -13,6 +13,13 @@ import FriendRouter from './routes/friend';
 import UploadRouter from './routes/upload';
 import { Server } from 'socket.io';
 import authorizeMiddleware from './middleware/authorizeMiddleware';
+import {
+  addUser,
+  getAllUSers,
+  getUser,
+  removeUser,
+  showUsers,
+} from './utils/usersSocket';
 
 ConnectMongo.getConnect();
 // MongoConnect();
@@ -41,14 +48,35 @@ app.use(errorMiddleware);
 const PORT = process.env.PORT || 5000;
 
 io.on('connection', (socket) => {
+  socket.on('send-online', (userId) => {
+    addUser(socket.id, userId);
+    socket.broadcast.emit('online', userId);
+  });
+
+  socket.on('check-online-user', (listFriends, info) => {
+    let users = [...getAllUSers()];
+
+    const onlineUsers = [];
+    users = users.filter((user) => user.userId !== info._id);
+    if (users.length > 0) {
+      listFriends.forEach((friend) => {
+        users.forEach((user) => {
+          if (user.userId === friend._id) {
+            onlineUsers.push(friend);
+          }
+        });
+      });
+    }
+
+    socket.emit('online-users', onlineUsers);
+  });
+
   socket.on('send-message', (message, roomId) => {
     socket.broadcast.emit('recieve-message', message);
   });
 
-  socket.on('send-online', (userId) => {
-    socket.broadcast.emit('online', userId);
-  });
   socket.on('join-room', (roomId, name) => {
+    console.log(`${name} has join the room ${roomId}`);
     socket.join(roomId);
   });
 
@@ -66,7 +94,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', async () => {
-    console.log('disconnected');
+    const user = getUser(socket.id);
+    removeUser(socket.id);
+    if (user) {
+      io.emit('recieve-offline', user);
+    }
   });
 });
 

@@ -50,7 +50,7 @@ export const CreateSingleMessage = AsyncMiddleware(async (req, res, next) => {
 
 export const GetSingleRoomMessages = AsyncMiddleware(async (req, res, next) => {
   const { roomId } = req.params;
-
+  const { numberOfMessages } = req.query;
   const room = await Room.findById(roomId).populate('messages');
 
   if (!room) {
@@ -62,5 +62,15 @@ export const GetSingleRoomMessages = AsyncMiddleware(async (req, res, next) => {
       new ErrorResponse(403, "You don't have permission in this room")
     );
   }
-  res.status(200).json(new SuccessResponse(200, { messages: room.messages }));
+  if (parseInt(numberOfMessages) < 0) {
+    return next(new ErrorResponse(400, 'numberOfMessages must be positive'));
+  }
+  const messagesData = await Message.find({ room: roomId })
+    .sort([['createdAt', -1]])
+    .skip(parseInt(numberOfMessages) === 1 ? 0 : parseInt(numberOfMessages) - 1)
+    .limit(10);
+  const messages = [...messagesData];
+  res
+    .status(200)
+    .json(new SuccessResponse(200, { messages: messages.reverse() }));
 });

@@ -11,6 +11,7 @@ import RoomRouter from './routes/room';
 import MessageRouter from './routes/message';
 import FriendRouter from './routes/friend';
 import UploadRouter from './routes/upload';
+
 import { Server } from 'socket.io';
 import authorizeMiddleware from './middleware/authorizeMiddleware';
 import {
@@ -20,7 +21,8 @@ import {
   removeUser,
   showUsers,
 } from './utils/usersSocket';
-
+import Message from './model/Message';
+import { DecryptMessage } from './utils/encrypt';
 ConnectMongo.getConnect();
 // MongoConnect();
 
@@ -37,12 +39,34 @@ const io = new Server(server, {
 app.use(express.json());
 app.use(cors());
 
+app.get(`${PREFIX}/test/:roomId`, async (req, res) => {
+  const { roomId } = req.params;
+  const { numberOfMessages } = req.query;
+  const messagesData = await Message.find({ room: roomId })
+    .sort([['createdAt', -1]])
+    .skip(parseInt(numberOfMessages) === 1 ? 0 : parseInt(numberOfMessages) - 1)
+    .limit(8);
+  const messages = [...messagesData];
+
+  res.json({
+    messages: messages.reverse().map((mess) => {
+      const newMess = {
+        ...mess,
+        text: DecryptMessage(mess.text, mess.room.toString()),
+      };
+
+      return newMess.text;
+    }),
+  });
+});
+
 app.use(`${PREFIX}/auth`, baseAuth, AuthRouter);
 app.use(`${PREFIX}/user`, UserRouter);
 app.use(`${PREFIX}/room`, authorizeMiddleware, RoomRouter);
 app.use(`${PREFIX}/message`, authorizeMiddleware, MessageRouter);
 app.use(`${PREFIX}/friend`, authorizeMiddleware, FriendRouter);
 app.use(`${PREFIX}/upload`, authorizeMiddleware, UploadRouter);
+
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;

@@ -74,28 +74,16 @@ const PORT = process.env.PORT || 5000;
 io.on('connection', (socket) => {
   socket.on('send-online', (userId) => {
     addUser(socket.id, userId);
-    socket.broadcast.emit('online', userId);
+
+    io.emit('online', getAllUSers());
   });
 
-  socket.on('check-online-user', (listFriends, info) => {
-    let users = [...getAllUSers()];
-
-    const onlineUsers = [];
-    users = users.filter((user) => user.userId !== info._id);
-    if (users.length > 0) {
-      listFriends.forEach((friend) => {
-        users.forEach((user) => {
-          if (user.userId === friend._id) {
-            onlineUsers.push(friend);
-          }
-        });
-      });
-    }
-
-    socket.emit('online-users', onlineUsers);
+  socket.on('send-offline', (user) => {
+    socket.broadcast.emit('recieve-offline', user);
   });
 
   socket.on('send-message', (message, roomId) => {
+    showUsers();
     socket.broadcast.emit('recieve-message', message);
   });
 
@@ -111,10 +99,6 @@ io.on('connection', (socket) => {
 
   socket.on('send-accept-request', (AcceptData) => {
     socket.broadcast.emit('recieve-accept', AcceptData);
-  });
-
-  socket.on('send-offline', (user) => {
-    socket.broadcast.emit('recieve-offline', user);
   });
 
   socket.on('disconnect', async () => {

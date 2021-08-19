@@ -55,12 +55,7 @@ export const GetRandomSuggestFriends = AsyncMiddleware(
     let friendsSuggest = users.filter(
       (ele) => !req.user.friends.includes(ele._id)
     );
-    // Shuffle(friendsSuggest);
 
-    // const randomNum = getRandomArbitrary(0, friendsSuggest.length);
-    // if (friendsSuggest.length > randomNum) {
-    //   friendsSuggest.slice(randomNum - 8, randomNum);
-    // }
     friendsSuggest = friendsSuggest.filter(
       (u) => !user.friendRequests.includes(u._id.toString())
     );

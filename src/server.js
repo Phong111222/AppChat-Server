@@ -101,6 +101,11 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('recieve-accept', AcceptData);
   });
 
+  //
+  socket.on('create-newroom', () => {
+    socket.broadcast.emit('newroom');
+  });
+
   socket.on('disconnect', async () => {
     const user = getUser(socket.id);
     removeUser(socket.id);

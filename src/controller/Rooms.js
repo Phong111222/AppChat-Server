@@ -81,6 +81,7 @@ export const GetRoomInfo = AsyncMiddleware(async (req, res, next) => {
   if (!room) return next(new ErrorResponse(400, 'Room does not exist'));
   res.status(200).json(new SuccessResponse(200, room));
 });
+// Make room with type group
 export const CreateGroupRoom = AsyncMiddleware(async (req, res, next) => {
   const { userList, roomType } = req.body;
   const users = await User.find().select('_id');

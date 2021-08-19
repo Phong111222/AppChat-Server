@@ -7,6 +7,16 @@ export const SendFriendRequest = AsyncMiddleware(async (req, res, next) => {
   const { userId } = req.params;
   const user = req.user;
   const userRecievedFriendRequest = await User.findById(userId);
+  const checkFriend =
+    user.friends.includes(userId) ||
+    userRecievedFriendRequest.friends.includes(user._id.toString());
+
+  if (checkFriend) {
+    return next(
+      new ErrorResponse(400, ' You have been friend with this user ')
+    );
+  }
+
   if (userId === user._id.toString()) {
     return next(new ErrorResponse(400, 'Can not make friend with yourself'));
   }
@@ -29,6 +39,7 @@ export const AcceptFriendRequest = AsyncMiddleware(async (req, res, next) => {
   const { userId } = req.params;
   const user = req.user;
   const userSend = await User.findById(userId);
+
   if (userId === user._id.toString()) {
     return next(new ErrorResponse(400, 'Can not make friend with yourself'));
   }

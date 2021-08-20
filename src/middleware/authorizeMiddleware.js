@@ -10,13 +10,13 @@ export default async (req, _, next) => {
   if (!token) {
     return next(new ErrorResponse(401, 'JWT is required'));
   }
-  jwt.verify(token, process.env.JWT_SECRET, function (err, decode) {
+  jwt.verify(token, process.env.JWT_SECRET, function(err, decode) {
     if (err) {
       return next(new ErrorResponse(401, 'Token expired'));
     }
   });
+
   const { _id } = jwt.decode(token, process.env.JWT_TOKEN);
-  // console.log(jwt.decode(token, process.env.JWT_TOKEN));
   const check_user = await User.findOne({ _id }).populate({
     path: 'friendRequests',
     select: '-password -friendRequests',

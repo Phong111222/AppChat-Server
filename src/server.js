@@ -37,6 +37,7 @@ const io = new Server(server, {
 });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get(`${PREFIX}/test/:roomId`, async (req, res) => {
@@ -65,7 +66,7 @@ app.use(`${PREFIX}/user`, UserRouter);
 app.use(`${PREFIX}/room`, authorizeMiddleware, RoomRouter);
 app.use(`${PREFIX}/message`, authorizeMiddleware, MessageRouter);
 app.use(`${PREFIX}/friend`, authorizeMiddleware, FriendRouter);
-app.use(`${PREFIX}/upload`, authorizeMiddleware, UploadRouter);
+app.use(`${PREFIX}/upload`, UploadRouter);
 
 app.use(errorMiddleware);
 

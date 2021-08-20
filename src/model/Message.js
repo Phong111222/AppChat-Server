@@ -32,11 +32,11 @@ const MessageSchema = new Schema(
       required: true,
     },
 
-    file: {
-      type: String,
+    files: {
+      type: [String],
     },
-    image: {
-      type: String,
+    images: {
+      type: [String],
     },
   },
   {

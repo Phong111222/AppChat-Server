@@ -6,7 +6,10 @@ import Room from '../model/Room';
 import { EncryptMessage } from '../utils/encrypt';
 
 export const CreateSingleMessage = AsyncMiddleware(async (req, res, next) => {
-  const { text, file, image } = req.body;
+  const images = req.files.map((file) => file.filename);
+
+  const Obj = Object.assign({}, req.body);
+  const { text } = Obj;
   const { roomId } = req.params;
 
   const room = await Room.findById(roomId);
@@ -20,7 +23,7 @@ export const CreateSingleMessage = AsyncMiddleware(async (req, res, next) => {
     );
   }
   let newMessage = null;
-  if (!(text || image || file)) {
+  if (text === '' && images.length <= 0) {
     return next(new ErrorResponse(400, 'Message does not have content'));
   }
   const user = {
@@ -28,24 +31,27 @@ export const CreateSingleMessage = AsyncMiddleware(async (req, res, next) => {
     nickname: req.user.nickname,
     _id: req.user._id,
   };
-  if (text) {
-    newMessage = new Message({
-      sender: user,
-      room: roomId,
-      text: EncryptMessage(text, `${roomId} ${process.env.secretEncrypt}`),
-    });
-  }
-  if (file) {
-    newMessage = new Message({ sender: user, room: roomId, file });
-  }
-  if (image) {
-    newMessage = new Message({ sender: user, room: roomId, image });
-  }
+  // if (text.trim() !== '') {
+  //   newMessage = new Message({
+  //     sender: user,
+  //     room: roomId,
+  //     text: EncryptMessage(text, `${roomId} ${process.env.secretEncrypt}`),
+  //   });
+  // }
+
+  // if (images.lenght > 0 || text.trim() !== '') {
+  newMessage = new Message({
+    sender: user,
+    room: roomId,
+    text: EncryptMessage(text, `${roomId} ${process.env.secretEncrypt}`),
+    images,
+  });
+  // }
 
   const savedMessage = await newMessage.save();
   room.messages.push(savedMessage._id);
   await room.save();
-  res.status(200).json(new SuccessResponse(200, savedMessage));
+  res.status(200).json(new SuccessResponse(200, { newMessage: savedMessage }));
 });
 
 export const GetSingleRoomMessages = AsyncMiddleware(async (req, res, next) => {

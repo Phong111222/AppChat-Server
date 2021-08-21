@@ -4,6 +4,7 @@ import {
   GetAllSingleRooms,
   GetAllSingleRoomsByUser,
   CreateGroupRoom,
+  AddUsersIntoGroup,
 } from '../controller/Rooms';
 
 const router = Router();
@@ -11,6 +12,7 @@ const router = Router();
 router
   .post('/', CreateSingleRoom)
   .post('/group', CreateGroupRoom)
+  .patch('/group/:roomId', AddUsersIntoGroup)
   .get('/singleRooms', GetAllSingleRooms)
   .get('/singleRooms/:userId', GetAllSingleRoomsByUser);
 

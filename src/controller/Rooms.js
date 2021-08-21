@@ -77,7 +77,7 @@ export const GetAllSingleRoomsByUser = AsyncMiddleware(
 
 export const GetRoomInfo = AsyncMiddleware(async (req, res, next) => {
   const { roomId } = req.params;
-  const room = Room.findById(roomId).select('-__v -createdAd -updatedAt');
+  const room = await Room.findById(roomId).select('-__v -createdAd -updatedAt');
   if (!room) return next(new ErrorResponse(400, 'Room does not exist'));
   res.status(200).json(new SuccessResponse(200, room));
 });
@@ -106,4 +106,42 @@ export const CreateGroupRoom = AsyncMiddleware(async (req, res, next) => {
     await user.save();
   }
   res.status(200).json(new SuccessResponse(200, savedRoom));
+});
+
+export const AddUsersIntoGroup = AsyncMiddleware(async (req, res, next) => {
+  const { users } = req.body;
+  const { roomId } = req.params;
+  const room = await Room.findById(roomId);
+
+  const existUsers = [];
+  for (const user of users) {
+    const checkUser = await User.findById(user);
+
+    if (!checkUser) {
+      existUsers.push(user);
+    }
+  }
+
+  if (existUsers.length > 0) {
+    return next(new ErrorResponse(400, `${existUsers.join(', ')} not exist`));
+  }
+
+  if (!room) {
+    return next(new ErrorResponse(400, 'Room is not exist'));
+  }
+  let check = false;
+  const usersInRoom = room.users.map((user) => user.toString());
+  users.forEach((user) => {
+    if (usersInRoom.includes(user)) {
+      check = true;
+    }
+  });
+  if (check) {
+    return next(new ErrorResponse(400, 'Users have been in this room'));
+  }
+  room.users = [...room.users, ...users];
+
+  const rs = await room.save();
+
+  return res.status(200).json(new SuccessResponse(200, { updatedRoom: rs }));
 });

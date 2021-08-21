@@ -16,8 +16,12 @@ export default async (req, _, next) => {
     }
   });
 
-  const { _id } = jwt.decode(token, process.env.JWT_TOKEN);
-  const check_user = await User.findOne({ _id }).populate({
+  const decodedData = jwt.decode(token, process.env.JWT_TOKEN);
+  console.log(decodedData);
+  if (!decodedData?._id) {
+    return next(new ErrorResponse(500, 'crash server'));
+  }
+  const check_user = await User.findOne({ _id: decodedData?._id }).populate({
     path: 'friendRequests',
     select: '-password -friendRequests',
   });

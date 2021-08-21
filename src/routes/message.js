@@ -12,7 +12,7 @@ const router = Router();
 router
   .post(
     '/singleMessage/:roomId',
-    mongoUpload.any('image', 5),
+    mongoUpload.array('image', 10),
     CreateSingleMessage
   )
   .get('/singleMessage/:roomId', GetSingleRoomMessages);

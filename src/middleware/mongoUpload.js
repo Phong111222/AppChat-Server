@@ -11,6 +11,7 @@ const storage = new GridFsStorage({
         if (err) {
           return reject(err);
         }
+        console.log(file);
         const filename = buf.toString('hex') + path.extname(file.originalname);
         const fileInfo = {
           filename: filename,
@@ -33,6 +34,9 @@ const storage = new GridFsStorage({
 
 const mongoUpload = multer({
   storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
 });
 
 export default mongoUpload;

@@ -5,14 +5,18 @@ import User from '../model/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 export const Register = AsyncMiddleware(async (req, res, next) => {
-  const { name, password, email, gender } = req.body;
+  const Obj = Object.assign({}, req.body);
+
+  const avatar = req?.file?.filename || '';
+  const { name, password, email, gender } = Obj;
+
   const check_user = await User.findOne({ email });
 
   if (check_user) {
     return next(new ErrorResponse(400, 'Email is already existed'));
   }
 
-  const user = new User({ name, password, email, gender });
+  const user = new User({ name, password, email, gender, avatar });
   const rs = await user.save();
   return res.status(200).json(new SuccessResponse(200, { rs }));
 });

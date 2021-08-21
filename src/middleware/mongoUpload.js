@@ -11,7 +11,7 @@ const storage = new GridFsStorage({
         if (err) {
           return reject(err);
         }
-        console.log(file);
+
         const filename = buf.toString('hex') + path.extname(file.originalname);
         const fileInfo = {
           filename: filename,

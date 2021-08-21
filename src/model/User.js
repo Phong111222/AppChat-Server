@@ -11,6 +11,10 @@ export const UserSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    avatar: {
+      type: String,
+      default: '',
+    },
     password: {
       require: true,
       type: String,
@@ -38,7 +42,7 @@ export const UserSchema = new mongoose.Schema(
       type: String,
       unique: true,
       validate: {
-        validator: function (email) {
+        validator: function(email) {
           return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
             email
           );
@@ -52,7 +56,7 @@ export const UserSchema = new mongoose.Schema(
   }
 );
 
-UserSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function(next) {
   const user = this;
 
   if (!user.isModified('password')) return next();

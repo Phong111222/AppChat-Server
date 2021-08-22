@@ -30,6 +30,10 @@ export const UpdatePassword = AsyncMiddleware(async (req, res, next) => {
   if (!comparePassword) {
     return next(new ErrorResponse(400, 'Wrong password'));
   }
+  const compareNewPassowrd = await bcrypt.compare(new_password, user.password);
+  if (compareNewPassowrd) {
+    return next(new ErrorResponse(400, 'You are using this password'));
+  }
   user.password = new_password;
   const rs = await user.save();
   res.status(201).json(new SuccessResponse(201, { rs }));
